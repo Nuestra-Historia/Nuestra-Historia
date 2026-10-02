@@ -37,7 +37,12 @@ export async function POST(req: Request) {
   const { scope, password } = parseResult.data;
 
   // 3. Obtener configuración de la DB
-  const config = await getConfig();
+  let config;
+  try {
+    config = await getConfig();
+  } catch {
+    notFound();
+  }
 
   // 4. Si scope = 's' y config.estado != 'aceptado': 404 genérico antes de todo
   if (scope === 's' && config.estado !== 'aceptado') {

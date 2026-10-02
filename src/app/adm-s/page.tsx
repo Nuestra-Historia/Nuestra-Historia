@@ -13,8 +13,12 @@ export default async function AdminSharedPage() {
     notFound();
   }
 
-  const config = await getConfig();
-  if (config.estado !== 'aceptado') {
+  try {
+    const config = await getConfig();
+    if (config.estado !== 'aceptado') {
+      notFound();
+    }
+  } catch {
     notFound();
   }
 
