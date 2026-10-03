@@ -1,18 +1,28 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { requireOwner, empty404Response } from '@/lib/guards';
-import { getDb } from '@/lib/db';
+import { getEstado, cambiarEstado } from '@/lib/estado';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const reordenarSchema = z.object({
-  ids: z.array(z.string().uuid()),
+const setSchema = z.object({
+  a: z.union([z.literal(1), z.literal(2)]),
 });
 
 export async function POST(req: Request) {
   const guard = await requireOwner(req);
   if (guard instanceof Response) return guard;
+
+  // Solo permitido si el estado actual es 'preguntando'; si no, 404 con cuerpo vacío
+  try {
+    const estadoActual = await getEstado();
+    if (estadoActual !== 'preguntando') {
+      return empty404Response();
+    }
+  } catch {
+    return empty404Response();
+  }
 
   let body: unknown;
   try {
@@ -21,19 +31,18 @@ export async function POST(req: Request) {
     return empty404Response();
   }
 
-  const result = reordenarSchema.safeParse(body);
+  const result = setSchema.safeParse(body);
   if (!result.success) {
     return empty404Response();
   }
 
-  const { ids } = result.data;
-  const db = getDb();
+  const { a } = result.data;
+  const nuevoEstado = a === 1 ? 'aceptado' : 'apagado';
 
-  // Llamar al RPC reordenar_frases
-  const { error } = await db.rpc('reordenar_frases', { p_ids: ids });
-
-  if (error) {
-    console.error('Error al reordenar frases RPC:', error);
+  try {
+    await cambiarEstado(nuevoEstado);
+  } catch (err) {
+    console.error('Error al cambiar estado en /api/p/set:', err);
     return new Response(null, {
       status: 500,
       headers: { 'Cache-Control': 'private, no-store' },
