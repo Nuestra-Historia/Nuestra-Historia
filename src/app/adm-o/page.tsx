@@ -6,6 +6,7 @@ import { env } from '@/lib/env';
 import { LoginForm } from '@/components/login-form';
 import { SeccionEstado } from '@/components/admin/SeccionEstado';
 import { SeccionFechas } from '@/components/admin/SeccionFechas';
+import { SeccionNombres } from '@/components/admin/SeccionNombres';
 import { SeccionFrases } from '@/components/admin/SeccionFrases';
 import { SeccionVistaPrevia } from '@/components/admin/SeccionVistaPrevia';
 import { SeccionReset } from '@/components/admin/SeccionReset';
@@ -61,6 +62,24 @@ export default async function AdminOwnerPage() {
           fechaParejaIso={config.fecha_pareja}
           fechaAceptadoIso={config.fecha_aceptado}
         />
+        <SeccionNombres
+          initialNombreA={config.nombre_a}
+          initialNombreB={config.nombre_b}
+        />
+        <div className="p-4 border border-neutral-200 rounded bg-white shadow-sm flex flex-col gap-2">
+          <h3 className="text-sm font-semibold text-neutral-800">Contenido multimedia</h3>
+          <p className="text-xs text-neutral-500">
+            Administración de fotos para tiras, momentos y apuestas.
+          </p>
+          <div className="pt-1">
+            <a
+              href={`/${env.OWNER_ADMIN_PATH}/contenido`}
+              className="py-1.5 px-3 bg-neutral-900 text-white rounded text-xs hover:bg-neutral-800 transition-colors inline-block"
+            >
+              Gestionar fotos y apuestas →
+            </a>
+          </div>
+        </div>
         <SeccionFrases frasesIniciales={frases} />
         <SeccionVistaPrevia ownerPath={env.OWNER_ADMIN_PATH} />
         <SeccionReset />

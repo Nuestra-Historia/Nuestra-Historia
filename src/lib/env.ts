@@ -37,6 +37,18 @@ const envSchema = z
     SUPABASE_SERVICE_ROLE_KEY: z
       .string()
       .min(1, 'SUPABASE_SERVICE_ROLE_KEY no puede estar vacía'),
+    R2_ACCOUNT_ID: z
+      .string()
+      .min(1, 'R2_ACCOUNT_ID no puede estar vacía'),
+    R2_ACCESS_KEY_ID: z
+      .string()
+      .min(1, 'R2_ACCESS_KEY_ID no puede estar vacía'),
+    R2_SECRET_ACCESS_KEY: z
+      .string()
+      .min(1, 'R2_SECRET_ACCESS_KEY no puede estar vacía'),
+    R2_BUCKET: z
+      .string()
+      .min(1, 'R2_BUCKET no puede estar vacía'),
   })
   .refine((data) => data.OWNER_ADMIN_PATH !== data.SHARED_ADMIN_PATH, {
     message: 'OWNER_ADMIN_PATH y SHARED_ADMIN_PATH deben ser distintos entre sí',

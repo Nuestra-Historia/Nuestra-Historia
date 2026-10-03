@@ -1,6 +1,7 @@
 import 'server-only';
 import { env } from './env';
 import { leerSesion, SessionResult } from './session';
+import { getEstado } from './estado';
 
 export function empty404Response(): Response {
   return new Response(null, {
@@ -27,3 +28,36 @@ export async function requireOwner(req: Request): Promise<SessionResult | Respon
 
   return session;
 }
+
+export async function requireStaff(req: Request): Promise<SessionResult | Response> {
+  // Verificar header Origin solo para métodos que no sean GET
+  if (req.method !== 'GET') {
+    const origin = req.headers.get('origin');
+    if (origin !== env.SITE_ORIGIN) {
+      return empty404Response();
+    }
+  }
+
+  const session = await leerSesion(req);
+  if (!session) {
+    return empty404Response();
+  }
+
+  if (session.rol === 'owner') {
+    return session;
+  }
+
+  if (session.rol === 'shared') {
+    try {
+      const estado = await getEstado();
+      if (estado === 'aceptado') {
+        return session;
+      }
+    } catch {
+      return empty404Response();
+    }
+  }
+
+  return empty404Response();
+}
+
